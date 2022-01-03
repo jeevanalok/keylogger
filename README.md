@@ -1,7 +1,7 @@
 # KEYLOGGER
 
 A **simple python keylogger** built to log key strokes and remotely
-send base64 encoded file to the specified email address.<br>
+send <ins>base64 encoded file</ins> to the specified email address.<br>
 It also has the added feature to **capture screenshots** on a different
 thread simultaneously while keylogger is running in the main.
 
